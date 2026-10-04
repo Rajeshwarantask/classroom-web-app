@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
+import { useAuth } from './hooks/useAuth';
+import { LoadingScreen } from './components/ui/AppStates';
 import './App.css';
 
 const demoRooms = [
@@ -14,7 +16,7 @@ const nav = [
 ];
 
 function App() {
-  const [session, setSession] = useState(null);
+  const { session, loading, signOut } = useAuth();
   const [page, setPage] = useState('overview');
   const [rooms, setRooms] = useState(demoRooms);
   const [bookings, setBookings] = useState([]);
@@ -25,13 +27,6 @@ function App() {
   const [authForm, setAuthForm] = useState({ email: '', password: '' });
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => { setSession(data.session); setLoading(false); });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, next) => setSession(next));
-    return () => listener.subscription.unsubscribe();
-  }, []);
 
   useEffect(() => {
     if (!session) return;
@@ -86,7 +81,7 @@ function App() {
     setBookings((current) => current.map((b) => b.id === booking.id ? { ...b, status: 'checked_in', checked_in_at: new Date().toISOString() } : b)); setToast('Checked in. The room is now marked occupied.');
   }
 
-  if (loading) return <div className="loading-screen"><span className="brand-mark">N</span><p>Loading Northstar...</p></div>;
+  if (loading) return <LoadingScreen />;
   if (!session) return <AuthScreen mode={authMode} setMode={setAuthMode} form={authForm} setForm={setAuthForm} onSubmit={authenticate} busy={authBusy} error={authError} />;
 
   const activeBookings = bookings.filter((b) => b.status !== 'cancelled');
@@ -95,7 +90,7 @@ function App() {
       <div className="brand"><span className="brand-mark">N</span><span>northstar</span></div>
       <div className="workspace"><span className="workspace-dot" /> <span>Campus operations</span><span className="chevron">⌄</span></div>
       <nav>{nav.map(([id, label, icon]) => <button className={page === id ? 'nav-item active' : 'nav-item'} onClick={() => setPage(id)} key={id}><span>{icon}</span>{label}{id === 'bookings' && activeBookings.length > 0 && <b>{activeBookings.length}</b>}</button>)}</nav>
-      <div className="sidebar-bottom"><div className="help-card"><span className="spark">✦</span><strong>Need a hand?</strong><p>Read the quick start guide or contact your campus admin.</p><button>Open help centre ↗</button></div><button className="profile-button" onClick={() => supabase.auth.signOut()}><span className="avatar">{(session.user.email || 'U')[0].toUpperCase()}</span><span><strong>{session.user.email?.split('@')[0]}</strong><small>Sign out</small></span><span className="more">•••</span></button></div>
+      <div className="sidebar-bottom"><div className="help-card"><span className="spark">✦</span><strong>Need a hand?</strong><p>Read the quick start guide or contact your campus admin.</p><button>Open help centre ↗</button></div><button className="profile-button" onClick={signOut}><span className="avatar">{(session.user.email || 'U')[0].toUpperCase()}</span><span><strong>{session.user.email?.split('@')[0]}</strong><small>Sign out</small></span><span className="more">•••</span></button></div>
     </aside>
     <main className="main"><header><div><p className="eyebrow">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p><h1>{page === 'overview' ? 'Good morning' : nav.find((n) => n[0] === page)?.[1]}</h1></div><div className="header-actions"><button className="icon-button">⌕</button><button className="icon-button notification">♢<i /></button><button className="primary-button" onClick={() => { setSelectedRoom(null); setShowBooking(true); }}>+ Reserve a room</button></div></header>
       {page === 'overview' && <Overview rooms={rooms} bookings={activeBookings} onReserve={(room) => { setSelectedRoom(room); setShowBooking(true); }} onCheckIn={checkIn} />}

@@ -5,12 +5,18 @@ require('dotenv').config({ path: __dirname + '/.env' });
 const mongoose = require('mongoose');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || true }));
+app.use(express.json({ limit: '1mb' }));
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.error("MongoDB connection error:", err));
+if (process.env.MONGO_URI) {
+  mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('MongoDB connected'))
+    .catch((err) => console.error('MongoDB connection error:', err.message));
+} else {
+  console.warn('MONGO_URI is not configured; legacy Mongo routes are unavailable.');
+}
+
+app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'classroom-api' }));
 
 // Import student routes and use them
 // const studentsRouter = require("./routes/students"); // Add this line to import the student routes
