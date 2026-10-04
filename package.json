@@ -1,0 +1,8 @@
+{
+  "name": "northstar-classroom-operations",
+  "private": true,
+  "scripts": {
+    "start": "HOST=0.0.0.0 WDS_SOCKET_HOST=localhost WDS_SOCKET_PORT=3000 npm --prefix frontend start",
+    "build": "npm --prefix frontend run build"
+  }
+}
