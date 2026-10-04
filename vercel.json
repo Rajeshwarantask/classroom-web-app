@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm --prefix frontend run build",
-  "installCommand": "npm --prefix frontend install",
-  "outputDirectory": "frontend/build",
+  "buildCommand": "npm --prefix ../frontend run build",
+  "installCommand": "npm --prefix ../frontend install",
+  "outputDirectory": "../frontend/build",
   "framework": "create-react-app",
   "rewrites": [
     { "source": "/((?!static/|favicon.ico|manifest.json|asset-manifest.json|robots.txt).*)", "destination": "/index.html" }
