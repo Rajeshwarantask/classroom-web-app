@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
 import { useAuth } from './hooks/useAuth';
 import { LoadingScreen } from './components/ui/AppStates';
+import { env } from './config/env';
 import './App.css';
 
 const demoRooms = [
@@ -46,7 +47,7 @@ function App() {
 
   async function authenticate(event) {
     event.preventDefault(); setAuthBusy(true); setAuthError('');
-    const action = authMode === 'signin' ? supabase.auth.signInWithPassword(authForm) : supabase.auth.signUp({ ...authForm, options: { emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || window.location.origin + '/auth/callback' } });
+    const action = authMode === 'signin' ? supabase.auth.signInWithPassword(authForm) : supabase.auth.signUp({ ...authForm, options: { emailRedirectTo: env.authRedirectUrl || window.location.origin + '/auth/callback' } });
     const { error } = await action;
     if (error) setAuthError(error.message.includes('Invalid') ? 'Invalid email or password.' : error.message);
     else if (authMode === 'signup') setAuthError('Check your inbox to confirm your account.');

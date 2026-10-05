@@ -3,6 +3,6 @@
   "private": true,
   "scripts": {
     "start": "HOST=0.0.0.0 WDS_SOCKET_HOST=localhost WDS_SOCKET_PORT=3000 npm --prefix frontend start",
-    "build": "npm install --prefix frontend && npm run build --prefix frontend"
+    "build": "node scripts/generate-frontend-env.js && npm install --prefix frontend && npm run build --prefix frontend"
   }
 }
