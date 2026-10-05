@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "frontend/build",
+  "framework": "create-react-app",
+  "rewrites": [
+    { "source": "/((?!static/|favicon.ico|manifest.json|asset-manifest.json|robots.txt|logo192.png|logo512.png|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|css|js)$).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    { "source": "/manifest.json", "headers": [{ "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" }] },
+    { "source": "/static/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
+  ]
+}
