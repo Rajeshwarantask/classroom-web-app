@@ -83,11 +83,13 @@ function App() {
     const collision = bookings.some((b) => b.room_id === roomId && ['confirmed', 'checked_in'].includes(b.status) && new Date(b.starts_at) < end && new Date(b.ends_at) > start);
     if (collision) return setToast('That room is already reserved for this window.');
     if (!session || !roomId) return setToast('Choose a room before confirming.');
-    const confirmation = `CLS-${crypto.randomUUID().replaceAll('-', '').slice(0, 6).toUpperCase()}`;
-    const { data, error } = await supabase.from('bookings').insert({ room_id: roomId, user_id: session.user.id, title: form.title.trim(), purpose: form.purpose.trim(), starts_at: start.toISOString(), ends_at: end.toISOString(), confirmation_code: confirmation, booking_type: 'normal' }).select().single();
-    if (error) return setToast(error.code === '23P01' || error.code === '23505' ? 'Someone just booked this room. Try another time.' : 'Could not create the reservation.');
+    const { data, error } = await supabase.rpc('reserve_booking', { p_room_id: roomId, p_title: form.title.trim(), p_purpose: form.purpose.trim(), p_starts_at: start.toISOString(), p_ends_at: end.toISOString(), p_booking_type: 'normal' });
+    if (error) {
+      const messages = { room_conflict: 'Someone just booked this room. Try another time.', priority_protected: 'That priority window is protected until its release deadline.', room_closed: 'That room is closed for the selected window.', outside_horizon: 'Choose a date within the booking horizon.' };
+      return setToast(messages[error.message] || 'Could not create the reservation.');
+    }
     setBookings((current) => [...current, data].sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at)));
-    setShowBooking(false); setToast(`Reservation confirmed · ${confirmation}`); setPage('bookings');
+    setShowBooking(false); setToast(`Reservation confirmed · ${data.confirmation_code}`); setPage('bookings');
   }
 
   async function cancelBooking(booking) {
