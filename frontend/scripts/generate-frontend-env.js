@@ -21,5 +21,8 @@ if (!candidates.REACT_APP_SUPABASE_ANON_KEY.some((name) => process.env[name])) {
   throw new Error('Missing Supabase public key for the frontend build. Set REACT_APP_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in Vercel.')
 }
 
-fs.writeFileSync(path.join(frontendDir, '.env.production.local'), `${lines.join('\n')}\n`, { mode: 0o600 })
-console.log('Frontend build environment prepared from public Supabase configuration.')
+const content = `${lines.join('\n')}\n`
+for (const filename of ['.env.production.local', '.env.development.local']) {
+  fs.writeFileSync(path.join(frontendDir, filename), content, { mode: 0o600 })
+}
+console.log('Frontend environment prepared from public Supabase configuration.')

@@ -18,7 +18,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
+    "start": "set -a; [ -f /vercel/share/.env.project ] && . /vercel/share/.env.project; set +a; node scripts/generate-frontend-env.js && DANGEROUSLY_DISABLE_HOST_CHECK=true HOST=0.0.0.0 react-scripts --openssl-legacy-provider start",
     "build": "node scripts/generate-frontend-env.js && react-scripts --openssl-legacy-provider build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
