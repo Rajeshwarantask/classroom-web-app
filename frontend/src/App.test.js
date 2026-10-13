@@ -28,6 +28,14 @@ test('keeps status and countdown consistent at booking boundaries', () => {
   expect(closed.countdownMs).toBeNull();
 });
 
+test('matches the reproduced live UTC scenario', () => {
+  const policy = { timezone: 'UTC', operating_days: [1, 2, 3, 4, 5], normal_submission_open_time: '09:00:00', normal_submission_close_time: '14:00:00' };
+  const state = getBookingWindowStatus('normal', new Date('2026-10-13T05:41:12Z'), 'UTC', '2026-10-13', policy);
+  expect(state.status).toBe('NOT OPEN');
+  expect(state.message).toBe('Opens today at 09:00 UTC');
+  expect(state.countdownMs).toBe(3 * 60 * 60 * 1000 + 18 * 60 * 1000 + 48 * 1000);
+});
+
 test('opens priority booking for the previous day window', () => {
   const policy = { timezone: 'UTC', operating_days: [1, 2, 3, 4, 5] };
   expect(getBookingWindowStatus('priority', new Date('2026-10-12T09:00:00Z'), 'UTC', '2026-10-13', policy).status).toBe('OPEN');
